@@ -1,128 +1,104 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public class EnemyStealthAI : MonoBehaviour
 {
     public Transform player;
     public float moveSpeed = 2f;
-    public Transform[] waypoints;              // Array of waypoints for patrolling
-    public float chaseTime = 3f;               // Time before enemy gives up chasing player
-    public float detectionRadius = 0.5f;       // Radius for detecting obstacles around the enemy
+    public LayerMask obstacleLayer;
+    public float chaseTime = 3f;
+    public Transform[] waypoints;
 
-    private int currentWaypointIndex = 0;      // Index of the current waypoint
-    private bool isChasing = false;            // Whether the enemy is chasing the player
-    private float lostPlayerTime;              // Time when the player was lost
-    private bool isReturningToWaypoint = false; // Whether the enemy is returning to a waypoint
+    private bool isChasing = false;
+    private float lostPlayerTime;
+    private Transform currentWaypoint;
+    private Dictionary<Transform, List<Transform>> waypointGraph;
+    private Transform previousWaypoint;
 
     void Start()
     {
-        if (waypoints.Length > 0)
-        {
-            transform.position = waypoints[0].position; // Start at the first waypoint
-        }
+        BuildWaypointGraph();
+        currentWaypoint = waypoints[0];
+        transform.position = currentWaypoint.position;
     }
 
     void Update()
     {
         if (isChasing)
         {
-            if (CanSeePlayer()) // If the enemy can see the player
+            if (CanSeePlayer())
             {
-                ChasePlayer(); // Chase the player
-                lostPlayerTime = Time.time; // Update last seen time
+                ChasePlayer();
+                lostPlayerTime = Time.time;
             }
-            else if (Time.time - lostPlayerTime > chaseTime) // Time to stop chasing
+            else if (Time.time - lostPlayerTime > chaseTime)
             {
-                isChasing = false; // Stop chasing after a delay
-                ReturnToWaypoint();
+                isChasing = false;
+                ReturnToNearestWaypoint();
             }
         }
         else
         {
-            PatrolBetweenWaypoints(); // Continue patrolling if not chasing
+            PatrolBetweenWaypoints();
+        }
+    }
+
+    void BuildWaypointGraph()
+    {
+        waypointGraph = new Dictionary<Transform, List<Transform>>();
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            List<Transform> neighbors = new List<Transform>();
+            if (i > 0) neighbors.Add(waypoints[i - 1]);
+            if (i < waypoints.Length - 1) neighbors.Add(waypoints[i + 1]);
+            if (i > 1) neighbors.Add(waypoints[i - 2]);
+            if (i < waypoints.Length - 2) neighbors.Add(waypoints[i + 2]);
+            waypointGraph[waypoints[i]] = neighbors;
         }
     }
 
     void PatrolBetweenWaypoints()
     {
-        if (waypoints.Length == 0) return;
+        if (currentWaypoint == null || waypointGraph.Count == 0) return;
 
-        // Move towards the current waypoint
-        Transform targetWaypoint = waypoints[currentWaypointIndex];
-        transform.position = Vector2.MoveTowards(transform.position, targetWaypoint.position, moveSpeed * Time.deltaTime);
-
-        // Check if the enemy reached the current waypoint
-        if (Vector2.Distance(transform.position, targetWaypoint.position) < 0.1f)
+        if (Vector2.Distance(transform.position, currentWaypoint.position) < 0.1f)
         {
-            // Move to the next waypoint in the array
-            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            List<Transform> possibleNextWaypoints = waypointGraph[currentWaypoint];
+            possibleNextWaypoints = possibleNextWaypoints.OrderBy(wp => wp == previousWaypoint ? 1 : 0).ToList(); // Lower chance to go back
+            previousWaypoint = currentWaypoint;
+            currentWaypoint = possibleNextWaypoints[Random.Range(0, possibleNextWaypoints.Count)];
         }
+
+        transform.position = Vector2.MoveTowards(transform.position, currentWaypoint.position, moveSpeed * Time.deltaTime);
     }
 
     void ChasePlayer()
     {
-        // Calculate the direction towards the player (2D vector)
         Vector2 direction = (player.position - transform.position).normalized;
-
-        // Move towards the player
-        transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
-    }
-
-    void ReturnToWaypoint()
-    {
-        // Find the nearest waypoint to return to
-        Transform nearestWaypoint = FindNearestWaypoint();
-
-        // Move towards the nearest waypoint
-        transform.position = Vector2.MoveTowards(transform.position, nearestWaypoint.position, moveSpeed * Time.deltaTime);
-
-        // Check if the enemy has reached the nearest waypoint
-        if (Vector2.Distance(transform.position, nearestWaypoint.position) < 0.1f)
+        if (!BlockedByWall(direction))
         {
-            isReturningToWaypoint = false;
-            PatrolBetweenWaypoints(); // Start patrolling again
+            transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
         }
     }
 
-    Transform FindNearestWaypoint()
+    void ReturnToNearestWaypoint()
     {
-        Transform nearestWaypoint = waypoints[0];
-        float closestDistance = Vector2.Distance(transform.position, nearestWaypoint.position);
-
-        // Loop through all waypoints to find the nearest one
-        foreach (Transform waypoint in waypoints)
-        {
-            float distance = Vector2.Distance(transform.position, waypoint.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                nearestWaypoint = waypoint;
-            }
-        }
-
-        return nearestWaypoint;
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player") && CanSeePlayer()) // Detect player within the trigger
-        {
-            isChasing = true;
-            lostPlayerTime = Time.time; // Record the time when the player was detected
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player")) // If the player exits the trigger area
-        {
-            lostPlayerTime = Time.time; // Record the time when the player was lost
-        }
+        Transform nearest = waypoints.OrderBy(w => Vector2.Distance(transform.position, w.position)).First();
+        currentWaypoint = nearest;
     }
 
     bool CanSeePlayer()
     {
-        // Check if the enemy can see the player (just a simple check)
+        Vector2 directionToPlayer = (player.position - transform.position).normalized;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        return distanceToPlayer < detectionRadius; // If the player is within the detection radius
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, distanceToPlayer, obstacleLayer);
+        return hit.collider == null;
+    }
+
+    bool BlockedByWall(Vector2 direction)
+    {
+        RaycastHit2D hit = Physics2D.CircleCast(transform.position, 0.5f, direction, 1f, obstacleLayer);
+        return hit.collider != null;
     }
 }
