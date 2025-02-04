@@ -9,12 +9,13 @@ public class EnemyStealthAI : MonoBehaviour
     public LayerMask obstacleLayer;
     public float chaseTime = 3f;
     public Transform[] waypoints;
+    public Collider2D visionCollider; // Field of vision
 
     private bool isChasing = false;
     private float lostPlayerTime;
     private Transform currentWaypoint;
     private Dictionary<Transform, List<Transform>> waypointGraph;
-    private Transform previousWaypoint;
+    private bool playerInVision = false; // Track if player is inside vision collider
 
     void Start()
     {
@@ -27,7 +28,7 @@ public class EnemyStealthAI : MonoBehaviour
     {
         if (isChasing)
         {
-            if (CanSeePlayer())
+            if (playerInVision && CanSeePlayer())
             {
                 ChasePlayer();
                 lostPlayerTime = Time.time;
@@ -61,24 +62,30 @@ public class EnemyStealthAI : MonoBehaviour
     void PatrolBetweenWaypoints()
     {
         if (currentWaypoint == null || waypointGraph.Count == 0) return;
-
         if (Vector2.Distance(transform.position, currentWaypoint.position) < 0.1f)
         {
             List<Transform> possibleNextWaypoints = waypointGraph[currentWaypoint];
-            possibleNextWaypoints = possibleNextWaypoints.OrderBy(wp => wp == previousWaypoint ? 1 : 0).ToList(); // Lower chance to go back
-            previousWaypoint = currentWaypoint;
-            currentWaypoint = possibleNextWaypoints[Random.Range(0, possibleNextWaypoints.Count)];
+            float forwardChance = 0.75f; // Increase chance of moving forward
+            if (possibleNextWaypoints.Count > 1 && Random.value > forwardChance)
+            {
+                currentWaypoint = possibleNextWaypoints[Random.Range(1, possibleNextWaypoints.Count)];
+            }
+            else
+            {
+                currentWaypoint = possibleNextWaypoints[0];
+            }
         }
-
-        transform.position = Vector2.MoveTowards(transform.position, currentWaypoint.position, moveSpeed * Time.deltaTime);
+        MoveTowards(currentWaypoint.position);
     }
 
     void ChasePlayer()
     {
+        if (!playerInVision || !CanSeePlayer()) return; // Stop movement if the player isn't seen
+
         Vector2 direction = (player.position - transform.position).normalized;
         if (!BlockedByWall(direction))
         {
-            transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
+            MoveTowards(player.position);
         }
     }
 
@@ -86,19 +93,56 @@ public class EnemyStealthAI : MonoBehaviour
     {
         Transform nearest = waypoints.OrderBy(w => Vector2.Distance(transform.position, w.position)).First();
         currentWaypoint = nearest;
+        MoveTowards(currentWaypoint.position);
     }
 
     bool CanSeePlayer()
     {
-        Vector2 directionToPlayer = (player.position - transform.position).normalized;
-        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, distanceToPlayer, obstacleLayer);
-        return hit.collider == null;
+        return playerInVision;
     }
 
     bool BlockedByWall(Vector2 direction)
     {
         RaycastHit2D hit = Physics2D.CircleCast(transform.position, 0.5f, direction, 1f, obstacleLayer);
         return hit.collider != null;
+    }
+
+    void MoveTowards(Vector2 targetPosition)
+    {
+        Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
+        transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        if (direction != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInVision = true;
+            isChasing = true;
+            lostPlayerTime = Time.time;
+        }
+    }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInVision = true;
+            isChasing = true;
+            lostPlayerTime = Time.time;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInVision = false;
+        }
     }
 }
