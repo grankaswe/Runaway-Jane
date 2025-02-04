@@ -26,6 +26,8 @@ public class EnemyStealthAI : MonoBehaviour
 
     void Update()
     {
+        CheckPlayerInVision();
+
         if (isChasing)
         {
             if (playerInVision && CanSeePlayer())
@@ -98,7 +100,10 @@ public class EnemyStealthAI : MonoBehaviour
 
     bool CanSeePlayer()
     {
-        return playerInVision;
+        Vector2 directionToPlayer = (player.position - transform.position).normalized;
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, distanceToPlayer, obstacleLayer);
+        return hit.collider == null;
     }
 
     bool BlockedByWall(Vector2 direction)
@@ -128,21 +133,19 @@ public class EnemyStealthAI : MonoBehaviour
         }
     }
 
-    void OnTriggerStay2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInVision = true;
-            isChasing = true;
-            lostPlayerTime = Time.time;
-        }
-    }
-
     void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
             playerInVision = false;
+        }
+    }
+
+    void CheckPlayerInVision()
+    {
+        if (visionCollider != null && player != null)
+        {
+            playerInVision = visionCollider.bounds.Contains(player.position);
         }
     }
 }
