@@ -1,18 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovementScript : MonoBehaviour
+public class TopDownMovement : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public float moveSpeed = 5f;
+    private Rigidbody2D rb;
+    private Vector2 movement;
+
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        // Get input (WASD or Arrow Keys)
+        movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
+        movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
+    }
+
+    void FixedUpdate()
+    {
+        // Apply movement
+        rb.velocity = movement.normalized * moveSpeed;
     }
 }
