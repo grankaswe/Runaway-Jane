@@ -140,7 +140,7 @@ public class EnemyStealthAI : MonoBehaviour
             playerInVision = false;
         }
     }
-
+    
     void CheckPlayerInVision()
     {
         if (visionCollider != null && player != null)
