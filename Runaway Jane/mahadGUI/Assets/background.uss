@@ -1,0 +1,9 @@
+.button {
+}
+
+.button:hover {
+    scale: 1.2 1.2;
+    transition-duration: 0.3s;
+    transition-delay: 0s;
+    transition-timing-function: ease-out;
+}
