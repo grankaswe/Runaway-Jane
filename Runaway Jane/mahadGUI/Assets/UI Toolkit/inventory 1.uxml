@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/alot.uss?fileID=7433441132597879392&amp;guid=5a2a97058ef15454dadc3412320ac883&amp;type=3#alot" />
+    <ui:VisualElement name="slotcontainer" style="flex-grow: 0; justify-content: center; flex-direction: row; flex-wrap: wrap; width: 348px; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; background-color: rgba(255, 0, 0, 0); position: absolute; top: 137px; left: 52px; height: 98px; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px;" />
+</ui:UXML>
