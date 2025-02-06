@@ -8,20 +8,19 @@ public class EnemyStealthAI : MonoBehaviour
     public float moveSpeed = 2f;
     public LayerMask obstacleLayer;
     public float chaseTime = 3f;
-    public Transform[] waypoints;
     public Collider2D visionCollider; // Field of vision
+    public EnemyMovementAI movementAI; // Reference to movement script
 
     private bool isChasing = false;
     private float lostPlayerTime;
-    private Transform currentWaypoint;
-    private Dictionary<Transform, List<Transform>> waypointGraph;
     private bool playerInVision = false; // Track if player is inside vision collider
 
     void Start()
     {
-        BuildWaypointGraph();
-        currentWaypoint = waypoints[0];
-        transform.position = currentWaypoint.position;
+        if (movementAI != null)
+        {
+            movementAI.enabled = true; // Enable movement AI initially for patrolling
+        }
     }
 
     void Update()
@@ -38,64 +37,22 @@ public class EnemyStealthAI : MonoBehaviour
             else if (Time.time - lostPlayerTime > chaseTime)
             {
                 isChasing = false;
-                ReturnToNearestWaypoint();
+                if (movementAI != null)
+                {
+                    movementAI.StartPatrolling(); // Resume patrolling when the chase ends
+                }
             }
         }
-        else
-        {
-            PatrolBetweenWaypoints();
-        }
-    }
-
-    void BuildWaypointGraph()
-    {
-        waypointGraph = new Dictionary<Transform, List<Transform>>();
-        for (int i = 0; i < waypoints.Length; i++)
-        {
-            List<Transform> neighbors = new List<Transform>();
-            if (i > 0) neighbors.Add(waypoints[i - 1]);
-            if (i < waypoints.Length - 1) neighbors.Add(waypoints[i + 1]);
-            if (i > 1) neighbors.Add(waypoints[i - 2]);
-            if (i < waypoints.Length - 2) neighbors.Add(waypoints[i + 2]);
-            waypointGraph[waypoints[i]] = neighbors;
-        }
-    }
-
-    void PatrolBetweenWaypoints()
-    {
-        if (currentWaypoint == null || waypointGraph.Count == 0) return;
-        if (Vector2.Distance(transform.position, currentWaypoint.position) < 0.1f)
-        {
-            List<Transform> possibleNextWaypoints = waypointGraph[currentWaypoint];
-            float forwardChance = 0.75f; // Increase chance of moving forward
-            if (possibleNextWaypoints.Count > 1 && Random.value > forwardChance)
-            {
-                currentWaypoint = possibleNextWaypoints[Random.Range(1, possibleNextWaypoints.Count)];
-            }
-            else
-            {
-                currentWaypoint = possibleNextWaypoints[0];
-            }
-        }
-        MoveTowards(currentWaypoint.position);
     }
 
     void ChasePlayer()
     {
         if (!playerInVision || !CanSeePlayer()) return; // Stop movement if the player isn't seen
 
-        Vector2 direction = (player.position - transform.position).normalized;
-        if (!BlockedByWall(direction))
+        if (movementAI != null)
         {
-            MoveTowards(player.position);
+            movementAI.StartChasing(player); // Enable movement AI and chase player
         }
-    }
-
-    void ReturnToNearestWaypoint()
-    {
-        Transform nearest = waypoints.OrderBy(w => Vector2.Distance(transform.position, w.position)).First();
-        currentWaypoint = nearest;
-        MoveTowards(currentWaypoint.position);
     }
 
     bool CanSeePlayer()
@@ -106,23 +63,6 @@ public class EnemyStealthAI : MonoBehaviour
         return hit.collider == null;
     }
 
-    bool BlockedByWall(Vector2 direction)
-    {
-        RaycastHit2D hit = Physics2D.CircleCast(transform.position, 0.5f, direction, 1f, obstacleLayer);
-        return hit.collider != null;
-    }
-
-    void MoveTowards(Vector2 targetPosition)
-    {
-        Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
-        transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-        if (direction != Vector2.zero)
-        {
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle);
-        }
-    }
-
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -130,6 +70,7 @@ public class EnemyStealthAI : MonoBehaviour
             playerInVision = true;
             isChasing = true;
             lostPlayerTime = Time.time;
+            if (movementAI != null) movementAI.StartChasing(player);
         }
     }
 
@@ -140,7 +81,7 @@ public class EnemyStealthAI : MonoBehaviour
             playerInVision = false;
         }
     }
-    
+
     void CheckPlayerInVision()
     {
         if (visionCollider != null && player != null)
