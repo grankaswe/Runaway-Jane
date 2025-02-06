@@ -1,21 +1,3 @@
-<<<<<<< Updated upstream
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class EnemyAttack : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-=======
 using UnityEngine;
 using System.Collections;
 
@@ -30,7 +12,7 @@ public class EnemyBleedAttack : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Health playerHealth = other.GetComponent<Health>();
+            HP playerHealth = other.GetComponent<HP>();
             if (playerHealth != null)
             {
                 // Apply initial damage
@@ -46,7 +28,7 @@ public class EnemyBleedAttack : MonoBehaviour
         }
     }
 
-    private IEnumerator ApplyBleed(Health playerHealth)
+    private IEnumerator ApplyBleed(HP playerHealth)
     {
         float elapsedTime = 0f;
         while (elapsedTime < bleedDuration)
@@ -67,6 +49,5 @@ public class EnemyBleedAttack : MonoBehaviour
 
             elapsedTime += bleedInterval;
         }
->>>>>>> Stashed changes
     }
 }
