@@ -1,13 +1,13 @@
-using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class EnemyBleedAttack : MonoBehaviour
+public class Enemyatk : MonoBehaviour
 {
     [SerializeField] private int initialDamage = 10;   // Damage on first hit
     [SerializeField] private int bleedDamage = 5;      // Damage per tick
     [SerializeField] private float bleedDuration = 5f; // Total bleed duration
     [SerializeField] private float bleedInterval = 1f; // Time between ticks
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
