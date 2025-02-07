@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TopDownMovement : MonoBehaviour
+public class PlayerMovementScript : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public Animator anim; // Animator reference

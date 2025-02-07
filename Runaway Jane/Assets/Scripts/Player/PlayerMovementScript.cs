@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class TopDownMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;            // Normal move speed
-    public float sprintSpeedMultiplier = 2f; // Speed multiplier for sprinting
+    public float moveSpeed = 5f;               // Normal move speed
+    public float sprintSpeedMultiplier = 2f;  // Speed multiplier for sprinting
     public float sneakSpeedMultiplier = 0.5f; // Speed multiplier for sneaking
+    public Animator anim;                     // Animator reference
+
     private Rigidbody2D rb;
     private Vector2 movement;
-
-    private OxygenSystem oxygenSystem;      // Reference to the Oxygen System (stamina)
+    private bool moving;                      // Track whether the player is moving
+    private OxygenSystem oxygenSystem;        // Reference to the Oxygen System (stamina)
 
     void Start()
     {
@@ -19,8 +21,11 @@ public class TopDownMovement : MonoBehaviour
     void Update()
     {
         // Get input (WASD or Arrow Keys)
-        movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
-        movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
+        movement.x = Input.GetAxisRaw("Horizontal");
+        movement.y = Input.GetAxisRaw("Vertical");
+
+        // Handle animation updates
+        Animate();
     }
 
     void FixedUpdate()
@@ -41,7 +46,29 @@ public class TopDownMovement : MonoBehaviour
             oxygenSystem.DrainOxygen(oxygenSystem.sneakDrainRate * Time.deltaTime); // Drain oxygen while sneaking
         }
 
-        // Apply movement with velocity
+        // Apply movement
         rb.velocity = movement.normalized * currentMoveSpeed;
+    }
+
+    void Animate()
+    {
+        // Check if the player is moving
+        if (movement.magnitude > 0.1f || movement.magnitude < -0.1f)
+        {
+            moving = true;
+        }
+        else
+        {
+            moving = false;
+        }
+
+        // Update animation parameters
+        if (moving)
+        {
+            anim.SetFloat("X", movement.x);
+            anim.SetFloat("Y", movement.y);
+        }
+
+        anim.SetBool("Moving", moving);
     }
 }
