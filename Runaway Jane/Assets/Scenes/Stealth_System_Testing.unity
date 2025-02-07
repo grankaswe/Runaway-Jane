@@ -895,6 +895,7 @@ GameObject:
   - component: {fileID: 1074638129}
   - component: {fileID: 1074638133}
   - component: {fileID: 1074638132}
+  - component: {fileID: 1074638134}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -1087,6 +1088,22 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1074638134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074638126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6a5d1b8a738d924eb3d9d6229a8951e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initialDamage: 100
+  bleedDamage: 5
+  bleedDuration: 5
+  bleedInterval: 1
 --- !u!1 &1152400769
 GameObject:
   m_ObjectHideFlags: 0
@@ -1214,6 +1231,7 @@ GameObject:
   - component: {fileID: 1615343861}
   - component: {fileID: 1615343860}
   - component: {fileID: 1615343859}
+  - component: {fileID: 1615343865}
   - component: {fileID: 1615343864}
   m_Layer: 6
   m_Name: Player
@@ -1385,6 +1403,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1615343865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1615343858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6920277722e73624eb116e66e3cf65a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
 --- !u!1 &1668865851
 GameObject:
   m_ObjectHideFlags: 0
