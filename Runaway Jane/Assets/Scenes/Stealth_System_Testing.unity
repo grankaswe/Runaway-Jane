@@ -1536,7 +1536,7 @@ MonoBehaviour:
   moveSpeed: 3
   sprintSpeedMultiplier: 2
   sneakSpeedMultiplier: 0.5
-  anim: {fileID: 0}
+  anim: {fileID: 1615343864}
 --- !u!58 &1615343860
 CircleCollider2D:
   m_ObjectHideFlags: 0
