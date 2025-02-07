@@ -8,11 +8,12 @@ public class Enemyatk : MonoBehaviour
     [SerializeField] private int bleedDamage = 5;      // Damage per tick
     [SerializeField] private float bleedDuration = 5f; // Total bleed duration
     [SerializeField] private float bleedInterval = 1f; // Time between ticks
-    private void OnTriggerEnter(Collider other)
+
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (other.CompareTag("Player"))
+        if (collision.collider.CompareTag("Player"))
         {
-            HP playerHealth = other.GetComponent<HP>();
+            HP playerHealth = collision.collider.GetComponent<HP>();
             if (playerHealth != null)
             {
                 // Apply initial damage
