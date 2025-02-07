@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class Door : MonoBehaviour
+public class KeyPickup : MonoBehaviour
 {
-    public string requiredKey = "Key"; // Name of the key needed to open the door
+    [SerializeField] private string keyName = "Key"; // Set key name in the Inspector
     private Inventory playerInventory;
 
     private void Start()
@@ -14,10 +14,9 @@ public class Door : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && playerInventory != null)
         {
-            if (playerInventory.HasItem(requiredKey))
+            if (playerInventory.AddItem(keyName)) // Adds key to inventory
             {
-                playerInventory.RemoveItem(requiredKey); // Remove key from inventory
-                Destroy(gameObject); // Open the door
+                Destroy(gameObject); // Remove key from scene if successfully added
             }
         }
     }
