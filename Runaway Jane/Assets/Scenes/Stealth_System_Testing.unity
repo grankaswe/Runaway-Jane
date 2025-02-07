@@ -1706,6 +1706,7 @@ GameObject:
   - component: {fileID: 1615343865}
   - component: {fileID: 1615343864}
   - component: {fileID: 1615343866}
+  - component: {fileID: 1615343867}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1728,7 +1729,6 @@ MonoBehaviour:
   moveSpeed: 3
   sprintSpeedMultiplier: 2
   sneakSpeedMultiplier: 0.5
-  anim: {fileID: 1615343864}
 --- !u!50 &1615343861
 Rigidbody2D:
   serializedVersion: 4
@@ -1903,6 +1903,23 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.5293038, y: 0.49443734}
   m_EdgeRadius: 0
+--- !u!114 &1615343867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1615343858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611723b87cbce444d978e11f45cd51d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxOxygen: 100
+  currentOxygen: 0
+  sprintDrainRate: 10
+  sneakDrainRate: 5
+  oxygenRegenRate: 5
 --- !u!1 &1618249391
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,70 +5,43 @@ public class TopDownMovement : MonoBehaviour
     public float moveSpeed = 5f;               // Normal move speed
     public float sprintSpeedMultiplier = 2f;  // Speed multiplier for sprinting
     public float sneakSpeedMultiplier = 0.5f; // Speed multiplier for sneaking
-    public Animator anim;                     // Animator reference
-
     private Rigidbody2D rb;
     private Vector2 movement;
-    private bool moving;                      // Track whether the player is moving
-    private OxygenSystem oxygenSystem;        // Reference to the Oxygen System (stamina)
+
+    private OxySystem oxySystem;              // Reference to the Oxygen System (stamina)
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        oxygenSystem = GetComponent<OxygenSystem>(); // Get OxygenSystem component
+        oxySystem = GetComponent<OxySystem>(); // Get OxySystem component
     }
 
     void Update()
     {
         // Get input (WASD or Arrow Keys)
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
-
-        // Handle animation updates
-        Animate();
+        movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
+        movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
     }
 
     void FixedUpdate()
     {
-        // Get current movement speed based on sprinting or sneaking
+        // Determine current movement speed based on player actions
         float currentMoveSpeed = moveSpeed;
 
-        // Check if player is sprinting (hold LeftShift)
-        if (Input.GetKey(KeyCode.LeftShift) && oxygenSystem.CanSprint())
+        // Sprinting logic (hold LeftShift)
+        if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint())
         {
             currentMoveSpeed *= sprintSpeedMultiplier; // Increase speed while sprinting
-            oxygenSystem.DrainOxygen(oxygenSystem.sprintDrainRate * Time.deltaTime); // Drain oxygen while sprinting
+            oxySystem.DrainOxygen(oxySystem.sprintDrainRate * Time.fixedDeltaTime); // Drain oxygen
         }
-        // Check if player is sneaking (hold LeftControl)
-        else if (Input.GetKey(KeyCode.LeftControl) && oxygenSystem.CanSneak())
+        // Sneaking logic (hold LeftControl)
+        else if (Input.GetKey(KeyCode.LeftControl) && oxySystem.CanSneak())
         {
             currentMoveSpeed *= sneakSpeedMultiplier; // Decrease speed while sneaking
-            oxygenSystem.DrainOxygen(oxygenSystem.sneakDrainRate * Time.deltaTime); // Drain oxygen while sneaking
+            oxySystem.DrainOxygen(oxySystem.sneakDrainRate * Time.fixedDeltaTime); // Drain oxygen
         }
 
-        // Apply movement
+        // Apply movement to the Rigidbody2D
         rb.velocity = movement.normalized * currentMoveSpeed;
-    }
-
-    void Animate()
-    {
-        // Check if the player is moving
-        if (movement.magnitude > 0.1f || movement.magnitude < -0.1f)
-        {
-            moving = true;
-        }
-        else
-        {
-            moving = false;
-        }
-
-        // Update animation parameters
-        if (moving)
-        {
-            anim.SetFloat("X", movement.x);
-            anim.SetFloat("Y", movement.y);
-        }
-
-        anim.SetBool("Moving", moving);
     }
 }
