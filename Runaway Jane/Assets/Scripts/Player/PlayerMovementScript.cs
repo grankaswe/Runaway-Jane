@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TopDownMovement : MonoBehaviour
@@ -7,6 +8,7 @@ public class TopDownMovement : MonoBehaviour
     public float sneakSpeedMultiplier = 0.5f; // Speed multiplier for sneaking
     private Rigidbody2D rb;
     private Vector2 movement;
+    private Animator animator;
 
     private OxySystem oxySystem;              // Reference to the Oxygen System (stamina)
 
@@ -14,6 +16,7 @@ public class TopDownMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         oxySystem = GetComponent<OxySystem>(); // Get OxySystem component
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -21,6 +24,12 @@ public class TopDownMovement : MonoBehaviour
         // Get input (WASD or Arrow Keys)
         movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
         movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
+        if (movement.magnitude > 1)
+            movement.Normalize();
+
+        animator.SetFloat("MoveX", movement.x);
+        animator.SetFloat("MoveY", movement.y);
+        animator.SetBool("IsMoving", movement.magnitude > 0);
     }
 
     void FixedUpdate()
