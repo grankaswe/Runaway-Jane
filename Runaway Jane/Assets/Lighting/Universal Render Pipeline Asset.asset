@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf2edee5c58d82540a51f03df9d42094, type: 3}
-  m_Name: New Universal Render Pipeline Asset
+  m_Name: Universal Render Pipeline Asset
   m_EditorClassIdentifier: 
   k_AssetVersion: 11
   k_AssetPreviousVersion: 11
   m_RendererType: 1
   m_RendererData: {fileID: 0}
   m_RendererDataList:
-  - {fileID: 11400000, guid: 696b1afd5b4ed624da27e3a8611b79e4, type: 2}
-  m_DefaultRendererIndex: 0
+  - {fileID: 11400000, guid: e8fcf217f862bb74da9bc051e4644326, type: 2}
+  - {fileID: 11400000, guid: 24b2d30ea4be8154498161bad9bc6f3d, type: 2}
+  m_DefaultRendererIndex: 1
   m_RequireDepthTexture: 0
   m_RequireOpaqueTexture: 0
   m_OpaqueDownsampling: 1
