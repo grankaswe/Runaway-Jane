@@ -335,6 +335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   requiredKey: Purple Key
+  interactKey: 101
 --- !u!212 &275235100
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -531,6 +532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyName: Purple Key
+  interactKey: 101
 --- !u!61 &371534455
 BoxCollider2D:
   m_ObjectHideFlags: 0
