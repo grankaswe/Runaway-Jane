@@ -3,15 +3,15 @@ using UnityEngine;
 public class PlayerMovementScript : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public Animator anim; // Animator reference
 
     private Rigidbody2D rb;
     private Vector2 movement;
-    private bool moving; // Track whether the player is moving
+    Animator ani;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        ani = GetComponent<Animator>();
     }
 
     void Update()
@@ -20,8 +20,24 @@ public class PlayerMovementScript : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
         movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
 
-        // Call animation logic
-        Animate();
+        if (movement.x != 0)
+        {
+            ani.SetBool("Moving", true);
+        }
+        else
+        {
+            ani.SetBool("Moving", false);
+        }
+
+        if (movement.y != 0)
+        {
+            ani.SetBool("Moving", true);
+        }
+        else
+        {
+            ani.SetBool("Moving", false);
+        }
+
     }
 
     void FixedUpdate()
@@ -29,26 +45,5 @@ public class PlayerMovementScript : MonoBehaviour
         // Apply movement
         rb.velocity = movement.normalized * moveSpeed;
     }
-
-    void Animate()
-    {
-        // Check if the player is moving
-        if (movement.magnitude > 0.1f || movement.magnitude < -0.1f)
-        {
-            moving = true;
-        }
-        else
-        {
-            moving = false;
-        }
-
-        // Update animation parameters
-        if (moving)
-        {
-            anim.SetFloat("X", movement.x);
-            anim.SetFloat("Y", movement.y);
-        }
-
-        anim.SetBool("Moving", moving);
-    }
 }
+  
