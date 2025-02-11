@@ -2069,6 +2069,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  healItem: Bandage
+  healAmount: 20
 --- !u!61 &1615343866
 BoxCollider2D:
   m_ObjectHideFlags: 0
