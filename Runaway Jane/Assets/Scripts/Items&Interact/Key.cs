@@ -6,7 +6,6 @@ public class KeyPickup : MonoBehaviour
     [SerializeField] private KeyCode interactKey = KeyCode.E; // Interaction key
     private Inventory playerInventory;
     private bool playerNearby = false;
-    private GameObject player;
 
     private void Start()
     {
@@ -19,23 +18,23 @@ public class KeyPickup : MonoBehaviour
         {
             if (playerInventory != null && playerInventory.AddItem(keyName))
             {
-                Destroy(gameObject); // Remove key from scene
+                Debug.Log($"Picked up {keyName}");
+                Destroy(gameObject); // Remove key from the scene
             }
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player")) // Check if the player enters trigger zone
         {
             playerNearby = true;
-            player = collision.gameObject;
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnTriggerExit2D(Collider2D other)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player")) // Check if the player leaves trigger zone
         {
             playerNearby = false;
         }
