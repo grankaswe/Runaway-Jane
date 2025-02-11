@@ -666,7 +666,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.965663, y: -1.5324347, z: -9.932888}
+  m_LocalPosition: {x: -2.094337, y: -2.6724348, z: -9.932888}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1686,9 +1686,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6a5d1b8a738d924eb3d9d6229a8951e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialDamage: 0
-  bleedDamage: 0
-  bleedDuration: 5
+  initialDamage: 30
+  bleedDamage: 5
+  bleedDuration: 10
   bleedInterval: 1
 --- !u!1 &1152400769
 GameObject:
@@ -2178,7 +2178,7 @@ Transform:
   m_GameObject: {fileID: 1615343858}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.72, y: -1.8, z: 0}
+  m_LocalPosition: {x: -1.34, y: -2.94, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2630,7 +2630,7 @@ Transform:
   m_GameObject: {fileID: 1751052385}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.965663, y: -1.5324347, z: -9.932888}
+  m_LocalPosition: {x: -2.094337, y: -2.6724348, z: -9.932888}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HP : MonoBehaviour
@@ -10,22 +9,24 @@ public class HP : MonoBehaviour
 
     [SerializeField] private string healItem = "Bandage"; // Item name in inventory for healing
     [SerializeField] private int healAmount = 20; // Amount healed per bandage
-    [SerializeField] private KeyCode healKey = KeyCode.H; // Custom key for healing (default: H)
+    [SerializeField] private KeyCode healKey = KeyCode.H; // Key for healing
 
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
 
     private Inventory playerInventory;
+    private bool isBleeding = false;
+    private Coroutine bleedCoroutine;
 
-    void Awake()
+    void Start()
     {
         currentHealth = maxHealth;
-        playerInventory = FindObjectOfType<Inventory>(); // Find the inventory in the scene
+        playerInventory = FindObjectOfType<Inventory>(); // Find inventory in scene
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(healKey)) // Press assigned key to heal
+        if (Input.GetKeyDown(healKey)) // Press key to heal
         {
             UseBandage();
         }
@@ -33,7 +34,7 @@ public class HP : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (amount < 0) return;
+        if (amount <= 0) return;
 
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
@@ -49,7 +50,7 @@ public class HP : MonoBehaviour
 
     public void Heal(int amount)
     {
-        if (amount < 0) return;
+        if (amount <= 0) return;
 
         currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
@@ -61,7 +62,7 @@ public class HP : MonoBehaviour
     private void Die()
     {
         OnDeath?.Invoke();
-        Debug.Log(gameObject.name + " has died.");
+        Debug.Log($"{gameObject.name} has died.");
         Destroy(gameObject); // Destroy the player
     }
 
@@ -70,22 +71,78 @@ public class HP : MonoBehaviour
 
     public void UseBandage()
     {
-        if (currentHealth < maxHealth) // Only heal if health is less than max
+        if (playerInventory == null)
         {
-            if (playerInventory.HasItem(healItem)) // Check if the player has a bandage
+            Debug.LogError("Inventory not found!");
+            return;
+        }
+
+        if (currentHealth >= maxHealth && !isBleeding)
+        {
+            Debug.Log("Health is already full and you're not bleeding!");
+            return;
+        }
+
+        if (playerInventory.HasItem(healItem))
+        {
+            playerInventory.RemoveItem(healItem); // Remove bandage from inventory
+            Heal(healAmount); // Heal the player
+
+            if (isBleeding)
             {
-                playerInventory.RemoveItem(healItem); // Remove one bandage from inventory
-                Heal(healAmount); // Heal the player
-                Debug.Log("Used a Bandage! Current Health: " + currentHealth);
+                StopBleeding();
             }
-            else
-            {
-                Debug.Log("No bandages left!");
-            }
+
+            Debug.Log($"Used a {healItem}! Current Health: {currentHealth}");
         }
         else
         {
-            Debug.Log("Health is already full!");
+            Debug.Log($"No {healItem}s left!");
+        }
+    }
+
+    public void StartBleeding(float damagePerTick, float duration, float tickInterval)
+    {
+        if (isBleeding) return; // Prevent multiple bleeding instances
+
+        isBleeding = true;
+        bleedCoroutine = StartCoroutine(BleedingEffect(damagePerTick, duration, tickInterval));
+        Debug.Log("Player started bleeding!");
+    }
+
+    private IEnumerator BleedingEffect(float damagePerTick, float duration, float tickInterval)
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            yield return new WaitForSeconds(tickInterval);
+
+            if (!isBleeding) yield break; // Stop if bleeding was canceled
+
+            TakeDamage((int)damagePerTick);
+            Debug.Log($"Bleeding! Took {damagePerTick} damage.");
+
+            if (currentHealth <= 0) yield break; // Stop bleeding if dead
+
+            elapsedTime += tickInterval;
+        }
+
+        isBleeding = false;
+        Debug.Log("Bleeding stopped naturally.");
+    }
+
+    public void StopBleeding()
+    {
+        if (isBleeding)
+        {
+            isBleeding = false;
+            if (bleedCoroutine != null)
+            {
+                StopCoroutine(bleedCoroutine);
+                bleedCoroutine = null;
+            }
+            Debug.Log("Bleeding stopped using bandage!");
         }
     }
 }

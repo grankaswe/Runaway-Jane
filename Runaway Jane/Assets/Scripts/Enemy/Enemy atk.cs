@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemyatk : MonoBehaviour
@@ -23,32 +22,9 @@ public class Enemyatk : MonoBehaviour
                 // Start bleeding effect
                 if (playerHealth.GetCurrentHealth() > 0)
                 {
-                    StartCoroutine(ApplyBleed(playerHealth));
+                    playerHealth.StartBleeding(bleedDamage, bleedDuration, bleedInterval);
                 }
             }
-        }
-    }
-
-    private IEnumerator ApplyBleed(HP playerHealth)
-    {
-        float elapsedTime = 0f;
-        while (elapsedTime < bleedDuration)
-        {
-            yield return new WaitForSeconds(bleedInterval); // Wait before applying bleed
-
-            if (playerHealth == null) yield break; // Stop if player is destroyed
-
-            playerHealth.TakeDamage(bleedDamage);
-            Debug.Log($"Player took {bleedDamage} bleed damage. Player Health: {playerHealth.GetCurrentHealth()}");
-
-            if (playerHealth.GetCurrentHealth() <= 0)
-            {
-                Debug.Log("Player has died!");
-                Destroy(playerHealth.gameObject); // Destroy player
-                yield break; // Stop coroutine
-            }
-
-            elapsedTime += bleedInterval;
         }
     }
 }
