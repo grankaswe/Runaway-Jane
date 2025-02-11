@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections; // Needed for Coroutines
+
 public class HidingSpot : MonoBehaviour
 {
     private bool playerInside = false; // Is the player in range to hide?
@@ -53,6 +54,7 @@ public class HidingSpot : MonoBehaviour
         isHiding = false;
         playerSprite.enabled = true; // Show player sprite
         mainCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, mainCamera.transform.position.z); // Reset camera
+        StartCoroutine(OpenAndCloseWardrobe()); // Play opening animation when exiting
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -100,6 +102,7 @@ public class HidingSpot : MonoBehaviour
             }
         }
     }
+
     private IEnumerator OpenAndCloseWardrobe()
     {
         spriteRenderer.sprite = openSprite; // Show open wardrobe
