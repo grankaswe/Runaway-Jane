@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections; // Needed for Coroutines
 public class HidingSpot : MonoBehaviour
 {
     private bool playerInside = false; // Is the player in range to hide?
@@ -7,6 +7,10 @@ public class HidingSpot : MonoBehaviour
     private GameObject player;
     private SpriteRenderer playerSprite;
     private Camera mainCamera;
+    public Sprite openSprite;   // Drag open wardrobe sprite in the Inspector
+    public Sprite closedSprite; // Drag closed wardrobe sprite in the Inspector
+
+    private SpriteRenderer spriteRenderer;
 
     [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, -10); // Camera offset
     [SerializeField] private KeyCode hideKey = KeyCode.E; // Key to hide/unhide
@@ -15,6 +19,8 @@ public class HidingSpot : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = closedSprite; // Start with closed wardrobe
     }
 
     private void Update()
@@ -39,6 +45,7 @@ public class HidingSpot : MonoBehaviour
         isHiding = true;
         playerSprite.enabled = false; // Hide player sprite
         mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y, mainCamera.transform.position.z); // Center camera
+        StartCoroutine(OpenAndCloseWardrobe());
     }
 
     private void ExitHiding()
@@ -92,5 +99,11 @@ public class HidingSpot : MonoBehaviour
                 ExitHiding();
             }
         }
+    }
+    private IEnumerator OpenAndCloseWardrobe()
+    {
+        spriteRenderer.sprite = openSprite; // Show open wardrobe
+        yield return new WaitForSeconds(0.2f); // Wait 0.2 seconds
+        spriteRenderer.sprite = closedSprite; // Switch back to closed
     }
 }
