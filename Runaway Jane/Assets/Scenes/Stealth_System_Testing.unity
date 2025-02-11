@@ -1889,6 +1889,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74c89e61c9fa7d3478495e3886c671c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  openSprite: {fileID: 21300000, guid: 3cbff83a3095171448a2f50ab3275379, type: 3}
+  closedSprite: {fileID: 21300000, guid: de75546a590553942a0293a846c70f68, type: 3}
   cameraOffset: {x: 0, y: 0, z: -10}
   hideKey: 101
   useTrigger: 0
