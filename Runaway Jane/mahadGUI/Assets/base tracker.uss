@@ -1,0 +1,15 @@
+#SFX .unity-base-slider__tracker {
+}
+
+.button {
+    font-size: 30px;
+    color: rgb(255, 255, 255);
+    -unity-font-definition: url("project://database/Assets/PixelifySans-VariableFont_wght%20SDF.asset?fileID=11400000&guid=c547da2685bac134884069b41972321f&type=2#PixelifySans-VariableFont_wght SDF");
+}
+
+.button:hover {
+    color: rgb(207, 0, 0);
+    font-size: 34px;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-in-out;
+}

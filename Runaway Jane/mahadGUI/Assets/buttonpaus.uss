@@ -1,0 +1,16 @@
+.button {
+    background-color: rgba(0, 0, 255, 0);
+    width: 200px;
+    font-size: 38px;
+    -unity-font-definition: url("project://database/Assets/PixelifySans-VariableFont_wght%20SDF.asset?fileID=11400000&guid=c547da2685bac134884069b41972321f&type=2#PixelifySans-VariableFont_wght SDF");
+    left: 50px;
+    top: 180px;
+    color: rgb(255, 255, 255);
+    align-self: flex-start;
+}
+
+.button:hover {
+    transition-duration: 0.3s;
+    transition-timing-function: ease-in-out;
+    font-size: 43px;
+}
