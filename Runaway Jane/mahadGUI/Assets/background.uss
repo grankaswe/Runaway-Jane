@@ -1,4 +1,7 @@
 .button {
+    background-color: rgb(81, 15, 15);
+    color: rgb(255, 255, 255);
+    -unity-text-outline-color: rgba(255, 255, 255, 0);
 }
 
 .button:hover {
@@ -6,4 +9,11 @@
     transition-duration: 0.3s;
     transition-delay: 0s;
     transition-timing-function: ease-out;
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
+
+.button:hover {
+    background-color: rgb(255, 255, 255);
+    -unity-text-outline-color: rgba(0, 0, 0, 0);
 }
