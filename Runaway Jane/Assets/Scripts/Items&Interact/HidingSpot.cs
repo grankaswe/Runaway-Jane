@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections; // Needed for Coroutines
+
 public class HidingSpot : MonoBehaviour
 {
     private bool playerInside = false; // Is the player in range to hide?
@@ -110,10 +111,16 @@ public class HidingSpot : MonoBehaviour
             }
         }
     }
+
     private IEnumerator OpenAndCloseWardrobe()
     {
         spriteRenderer.sprite = openSprite; // Show open wardrobe
-        yield return new WaitForSeconds(0.2f); // Wait for animation effect
+        yield return new WaitForSeconds(0.3f); // Wait before partially closing
+
+        // Optional: If you have an intermediate sprite (half-open), uncomment this:
+        // spriteRenderer.sprite = halfClosedSprite;
+        // yield return new WaitForSeconds(0.5f);
+
         spriteRenderer.sprite = closedSprite; // Switch back to closed
     }
 }
