@@ -9,7 +9,6 @@ public class HP : MonoBehaviour
     private int currentHealth;
 
     [SerializeField] private string healItem = "Bandage"; // Item name in inventory for healing
-    [SerializeField] private int healAmount = 20; // Amount healed per bandage
     [SerializeField] private KeyCode healKey = KeyCode.H; // Custom key for healing (default: H)
 
     public event Action OnDeath;
@@ -75,8 +74,12 @@ public class HP : MonoBehaviour
             if (playerInventory.HasItem(healItem)) // Check if the player has a bandage
             {
                 playerInventory.RemoveItem(healItem); // Remove one bandage from inventory
+
+                // Heal the player by restoring 75% of max health
+                int healAmount = Mathf.CeilToInt(maxHealth * 0.75f);
                 Heal(healAmount); // Heal the player
-                Debug.Log("Used a Bandage! Current Health: " + currentHealth);
+
+                Debug.Log("Used a Bandage! Restored " + healAmount + " HP. Current Health: " + currentHealth);
             }
             else
             {
