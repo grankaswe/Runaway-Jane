@@ -14,8 +14,9 @@ public class EnemyStealthAI : MonoBehaviour
 
     private bool isChasing = false;
     private float lostPlayerTime;
-    private bool playerInVision = false; // Track if player is inside vision collider
-    private bool playerInSoundRange = false; // Track if player is inside sound collider
+    private bool playerInVision = false;
+    private bool playerInSoundRange = false;
+    private HidingSpot playerHidingSpot; // Reference to hiding spot
 
     void Start()
     {
@@ -42,7 +43,7 @@ public class EnemyStealthAI : MonoBehaviour
                 isChasing = false;
                 if (movementAI != null)
                 {
-                    movementAI.StartPatrolling(); // Resume patrolling when the chase ends
+                    movementAI.StartPatrolling(); // Resume patrolling
                 }
             }
         }
@@ -50,37 +51,39 @@ public class EnemyStealthAI : MonoBehaviour
 
     void ChasePlayer()
     {
-        if (!(playerInVision && CanSeePlayer()) && !playerInSoundRange) return; // Stop movement if the player isn't seen or heard
+        if (!(playerInVision && CanSeePlayer()) && !playerInSoundRange) return;
 
         if (movementAI != null)
         {
-            movementAI.StartChasing(player); // Enable movement AI and chase player
+            movementAI.StartChasing(player);
         }
     }
 
     bool CanSeePlayer()
     {
+        if (playerHidingSpot != null && playerHidingSpot.IsHiding) return false; // Player is hiding
+
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, distanceToPlayer, obstacleLayer);
-        return hit.collider == null;
+
+        return hit.collider == null || hit.collider.gameObject == player.gameObject;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            if (other == visionCollider)
+            playerHidingSpot = other.GetComponent<HidingSpot>(); // Get hiding spot component
+
+            if (playerHidingSpot == null || !playerHidingSpot.IsHiding)
             {
-                playerInVision = true;
+                if (other == visionCollider) playerInVision = true;
+                if (other == soundCollider) playerInSoundRange = true;
+                isChasing = true;
+                lostPlayerTime = Time.time;
+                if (movementAI != null) movementAI.StartChasing(player);
             }
-            if (other == soundCollider)
-            {
-                playerInSoundRange = true;
-            }
-            isChasing = true;
-            lostPlayerTime = Time.time;
-            if (movementAI != null) movementAI.StartChasing(player);
         }
     }
 
@@ -88,14 +91,8 @@ public class EnemyStealthAI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (other == visionCollider)
-            {
-                playerInVision = false;
-            }
-            if (other == soundCollider)
-            {
-                playerInSoundRange = false;
-            }
+            if (other == visionCollider) playerInVision = false;
+            if (other == soundCollider) playerInSoundRange = false;
         }
     }
 
@@ -103,7 +100,7 @@ public class EnemyStealthAI : MonoBehaviour
     {
         if (visionCollider != null && player != null)
         {
-            playerInVision = visionCollider.bounds.Contains(player.position);
+            playerInVision = visionCollider.bounds.Contains(player.position) && CanSeePlayer();
         }
     }
 
@@ -111,6 +108,8 @@ public class EnemyStealthAI : MonoBehaviour
     {
         if (soundCollider != null && player != null)
         {
+            if (playerHidingSpot != null && playerHidingSpot.IsHiding) return; // Ignore if hiding
+
             float playerNoiseLevel = GetPlayerNoiseLevel();
             float detectionRadius = soundCollider.bounds.extents.magnitude * playerNoiseLevel;
             playerInSoundRange = Vector2.Distance(transform.position, player.position) <= detectionRadius;
@@ -123,8 +122,8 @@ public class EnemyStealthAI : MonoBehaviour
         TopDownMovement playerMovement = player.GetComponent<TopDownMovement>();
         if (playerMovement == null) return 0f;
 
-        if (Input.GetKey(KeyCode.LeftShift)) return 1.5f; // Sprinting makes the most noise
-        if (Input.GetKey(KeyCode.LeftControl)) return 0.5f; // Sneaking makes less noise
-        return 1f; // Walking makes standard noise
+        if (Input.GetKey(KeyCode.LeftShift)) return 1.5f;
+        if (Input.GetKey(KeyCode.LeftControl)) return 0.5f;
+        return 1f;
     }
 }

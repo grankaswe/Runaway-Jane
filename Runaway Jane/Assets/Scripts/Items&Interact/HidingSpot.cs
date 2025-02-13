@@ -1,35 +1,42 @@
 using UnityEngine;
-using System.Collections; // Needed for Coroutines
+using System.Collections;
 
 public class HidingSpot : MonoBehaviour
 {
-    private bool playerInside = false; // Is the player in range to hide?
-    private bool isHiding = false; // Is the player currently hiding?
+    private bool playerInside = false;
+    public bool IsHiding { get; private set; } = false; // Public getter for enemy AI
     private GameObject player;
-    private SpriteRenderer playerSprite;
     private Camera mainCamera;
-    public Sprite openSprite;   // Drag open wardrobe sprite in the Inspector
-    public Sprite closedSprite; // Drag closed wardrobe sprite in the Inspector
+    public Sprite openSprite;
+    public Sprite closedSprite;
 
     private SpriteRenderer spriteRenderer;
-    private bool IsHiding = false; // Track if player is inside
+    private Collider2D wardrobeCollider;
+    private Collider2D reachCollider;
 
-    [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, -10); // Camera offset
-    [SerializeField] private KeyCode hideKey = KeyCode.E; // Key to hide/unhide
-    [SerializeField] private bool useTrigger = true; // Toggle between collision or trigger
+    [SerializeField] private Vector2 cameraOffset = new Vector2(0, -10);
+    [SerializeField] private KeyCode hideKey = KeyCode.E;
+    [SerializeField] private bool useTrigger = true;
 
     private void Start()
     {
         mainCamera = Camera.main;
         spriteRenderer = GetComponent<SpriteRenderer>();
-        spriteRenderer.sprite = closedSprite; // Start with closed wardrobe
+        wardrobeCollider = GetComponent<Collider2D>();
+        reachCollider = transform.Find("reach").GetComponent<Collider2D>();  // Find the 'reach' GameObject and its collider
+        spriteRenderer.sprite = closedSprite;
     }
 
     private void Update()
     {
+        // Ensure the wardrobe is active for interaction
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        // Only allow hiding when the player is inside the reach area
         if (playerInside && Input.GetKeyDown(hideKey))
         {
-            if (!isHiding)
+            if (!IsHiding)
             {
                 EnterHiding();
             }
@@ -44,83 +51,70 @@ public class HidingSpot : MonoBehaviour
     {
         if (player == null) return;
 
-        isHiding = true;
-        playerSprite.enabled = false; // Hide player sprite
-        mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y, mainCamera.transform.position.z); // Center camera
-        if (!IsHiding) // Prevent re-entering
+        IsHiding = true;
+
+        // Disable all renderers on the player to make them fully invisible
+        Renderer[] renderers = player.GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
         {
-            IsHiding = true;
-            StartCoroutine(OpenAndCloseWardrobe()); // Show open briefly, then close
+            r.enabled = false;
         }
+
+        // Disable wardrobe's visual components while keeping it active for interaction
+        spriteRenderer.enabled = false;
+        wardrobeCollider.enabled = false; // Optionally, disable the collider to prevent further triggers
+
+        // Move camera to the hiding spot
+        mainCamera.transform.position = new Vector2(transform.position.x, mainCamera.transform.position.y);
+
+        StartCoroutine(OpenAndCloseWardrobe());
     }
 
     private void ExitHiding()
     {
-        isHiding = false;
-        playerSprite.enabled = true; // Show player sprite
-        mainCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, mainCamera.transform.position.z); // Reset camera
-        if (IsHiding) // Prevent exiting if not inside
-        {
-            IsHiding = false;
-            StartCoroutine(OpenAndCloseWardrobe()); // Show open briefly, then close
-        }
-    }
+        IsHiding = false;
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!useTrigger && collision.gameObject.CompareTag("Player"))
+        // Re-enable all renderers on the player
+        Renderer[] renderers = player.GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
         {
-            playerInside = true;
-            player = collision.gameObject;
-            playerSprite = player.GetComponent<SpriteRenderer>();
+            r.enabled = true;
         }
-    }
 
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (!useTrigger && collision.gameObject.CompareTag("Player"))
-        {
-            playerInside = false;
+        // Re-enable wardrobe's visual components
+        spriteRenderer.enabled = true;
+        wardrobeCollider.enabled = true; // Re-enable the collider to allow further interactions
 
-            if (isHiding)
-            {
-                ExitHiding();
-            }
-        }
+        // Move camera back to the player's position
+        mainCamera.transform.position = new Vector2(player.transform.position.x, mainCamera.transform.position.y);
+
+        StartCoroutine(OpenAndCloseWardrobe());
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (useTrigger && collision.gameObject.CompareTag("Player"))
+        // Only trigger when the player enters the 'reach' collider area
+        if (collision == reachCollider && collision.gameObject.CompareTag("Player"))
         {
             playerInside = true;
             player = collision.gameObject;
-            playerSprite = player.GetComponent<SpriteRenderer>();
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (useTrigger && collision.gameObject.CompareTag("Player"))
+        // Only reset when the player exits the 'reach' collider area
+        if (collision == reachCollider && collision.gameObject.CompareTag("Player"))
         {
             playerInside = false;
-
-            if (isHiding)
-            {
-                ExitHiding();
-            }
+            if (IsHiding) ExitHiding();
         }
     }
 
     private IEnumerator OpenAndCloseWardrobe()
     {
-        spriteRenderer.sprite = openSprite; // Show open wardrobe
-        yield return new WaitForSeconds(0.3f); // Wait before partially closing
-
-        // Optional: If you have an intermediate sprite (half-open), uncomment this:
-        // spriteRenderer.sprite = halfClosedSprite;
-        // yield return new WaitForSeconds(0.5f);
-
-        spriteRenderer.sprite = closedSprite; // Switch back to closed
+        spriteRenderer.sprite = openSprite;
+        yield return new WaitForSeconds(0.3f);
+        spriteRenderer.sprite = closedSprite;
     }
 }

@@ -34,6 +34,8 @@ public class TopDownMovement : MonoBehaviour
         animator.SetFloat("MoveX", movement.x);
         animator.SetFloat("MoveY", movement.y);
         animator.SetBool("IsMoving", movement.magnitude > 0);
+        animator.SetBool("IsHurt", playerHealth .GetCurrentHealth() < playerHealth.GetMaxHealth() * 0.50);
+        animator.SetBool("IsSprinting", Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint());
     }
 
     void FixedUpdate()
