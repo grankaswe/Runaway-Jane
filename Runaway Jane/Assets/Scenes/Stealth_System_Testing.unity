@@ -1419,8 +1419,8 @@ MonoBehaviour:
   openSprite: {fileID: 21300000, guid: 3cbff83a3095171448a2f50ab3275379, type: 3}
   closedSprite: {fileID: 21300000, guid: de75546a590553942a0293a846c70f68, type: 3}
   cameraOffset: {x: 0, y: 0}
-  hideKey: 0
-  useTrigger: 1
+  hideKey: 101
+  useTrigger: 0
 --- !u!1 &1338249678
 GameObject:
   m_ObjectHideFlags: 0
@@ -1913,6 +1913,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   healItem: Bandage
+  healAmount: 20
   healKey: 104
 --- !u!61 &1615343866
 BoxCollider2D:

@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
 
 public class EnemyStealthAI : MonoBehaviour
 {
@@ -61,7 +59,7 @@ public class EnemyStealthAI : MonoBehaviour
 
     bool CanSeePlayer()
     {
-        if (playerHidingSpot != null && playerHidingSpot.IsHiding) return false; // Player is hiding
+        if (playerHidingSpot != null && playerHidingSpot.IsHiding) return false; // Player is hiding, AI cannot see them
 
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -74,7 +72,7 @@ public class EnemyStealthAI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerHidingSpot = other.GetComponent<HidingSpot>(); // Get hiding spot component
+            playerHidingSpot = other.GetComponent<HidingSpot>(); // Get hiding spot component from player
 
             if (playerHidingSpot == null || !playerHidingSpot.IsHiding)
             {

@@ -7,7 +7,6 @@ public class TopDownMovement : MonoBehaviour
     public float sprintSpeedMultiplier = 2f;  // Speed multiplier for sprinting
     public float sneakSpeedMultiplier = 0.5f; // Speed multiplier for sneaking
     public float hurtSpeedMultiplier = 0.5f;  // Speed multiplier when the player is hurt
-
     private Rigidbody2D rb;
     private Vector2 movement;
     private Animator animator;
@@ -34,37 +33,40 @@ public class TopDownMovement : MonoBehaviour
         animator.SetFloat("MoveX", movement.x);
         animator.SetFloat("MoveY", movement.y);
         animator.SetBool("IsMoving", movement.magnitude > 0);
-        animator.SetBool("IsHurt", playerHealth .GetCurrentHealth() < playerHealth.GetMaxHealth() * 0.50);
-        animator.SetBool("IsSprinting", Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint());
     }
 
     void FixedUpdate()
     {
+        // Determine current movement speed based on player actions
         // Determine current movement speed based on player health
         float currentMoveSpeed = moveSpeed;
 
-        // Check if the player's health is below 50% and adjust speed
-        if (playerHealth.GetCurrentHealth() < playerHealth.GetMaxHealth() * 0.5f)
-        {
-            currentMoveSpeed *= hurtSpeedMultiplier; // Reduce speed if health is below 50%
-            sprintSpeedMultiplier = 1f; // Disable sprinting when hurt (no speed multiplier for sprinting)
-        }
-        else
-        {
-            // Sprinting logic (hold LeftShift)
-            if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint())
+        // Sprinting logic (hold LeftShift)
+        if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint())
+            // Check if the player's health is below 50% and adjust speed
+            if (playerHealth.GetCurrentHealth() < playerHealth.GetMaxHealth() * 0.5f)
+            {
+                currentMoveSpeed *= hurtSpeedMultiplier; // Reduce speed if health is below 50%
+                sprintSpeedMultiplier = 1f; // Disable sprinting when hurt (no speed multiplier for sprinting)
+            }
+            else
             {
                 currentMoveSpeed *= sprintSpeedMultiplier; // Increase speed while sprinting
                 oxySystem.DrainOxygen(oxySystem.sprintDrainRate * Time.fixedDeltaTime); // Drain oxygen
+                                                                                        // Sprinting logic (hold LeftShift)
+                if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint())
+                {
+                    currentMoveSpeed *= sprintSpeedMultiplier; // Increase speed while sprinting
+                    oxySystem.DrainOxygen(oxySystem.sprintDrainRate * Time.fixedDeltaTime); // Drain oxygen
+                }
             }
-        }
-
         // Sneaking logic (hold LeftControl)
-        if (Input.GetKey(KeyCode.LeftControl) && oxySystem.CanSneak())
-        {
-            currentMoveSpeed *= sneakSpeedMultiplier; // Decrease speed while sneaking
-            oxySystem.DrainOxygen(oxySystem.sneakDrainRate * Time.fixedDeltaTime); // Drain oxygen
-        }
+        else if (Input.GetKey(KeyCode.LeftControl) && oxySystem.CanSneak())
+            if (Input.GetKey(KeyCode.LeftControl) && oxySystem.CanSneak())
+            {
+                currentMoveSpeed *= sneakSpeedMultiplier; // Decrease speed while sneaking
+                oxySystem.DrainOxygen(oxySystem.sneakDrainRate * Time.fixedDeltaTime); // Drain oxygen
+            }
 
         // Apply movement to the Rigidbody2D
         rb.velocity = movement.normalized * currentMoveSpeed;

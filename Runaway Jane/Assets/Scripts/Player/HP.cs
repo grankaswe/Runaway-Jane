@@ -8,12 +8,14 @@ public class HP : MonoBehaviour
     private int currentHealth;
 
     [SerializeField] private string healItem = "Bandage"; // Item name in inventory for healing
+    [SerializeField] private int healAmount = 20; // Amount healed per bandage
     [SerializeField] private KeyCode healKey = KeyCode.H; // Custom key for healing (default: H)
 
     public event Action OnDeath;
     public event Action<int> OnHealthChanged;
 
     private Inventory playerInventory;
+    private Coroutine bleedCoroutine;
 
     void Awake()
     {
@@ -77,6 +79,7 @@ public class HP : MonoBehaviour
                 // Heal the player by restoring 75% of max health
                 int healAmount = Mathf.CeilToInt(maxHealth * 0.75f);
                 Heal(healAmount); // Heal the player
+                Debug.Log("Used a Bandage! Current Health: " + currentHealth);
 
                 Debug.Log("Used a Bandage! Restored " + healAmount + " HP. Current Health: " + currentHealth);
             }
@@ -91,19 +94,25 @@ public class HP : MonoBehaviour
         }
     }
 
-    public void StartBleeding(int damagePerTick, float duration, float interval)
+    // Add the StartBleeding method here to handle the bleeding effect
+    public void StartBleeding(int bleedDamage, float bleedDuration, float bleedInterval)
     {
-        StartCoroutine(BleedCoroutine(damagePerTick, duration, interval));
+        if (bleedCoroutine != null)
+        {
+            StopCoroutine(bleedCoroutine); // Stop any ongoing bleeding effect
+        }
+
+        bleedCoroutine = StartCoroutine(BleedingEffect(bleedDamage, bleedDuration, bleedInterval));
     }
 
-    private IEnumerator BleedCoroutine(int damagePerTick, float duration, float interval)
+    private IEnumerator BleedingEffect(int bleedDamage, float bleedDuration, float bleedInterval)
     {
         float elapsedTime = 0f;
-        while (elapsedTime < duration)
+        while (elapsedTime < bleedDuration)
         {
-            TakeDamage(damagePerTick);
-            yield return new WaitForSeconds(interval);
-            elapsedTime += interval;
+            TakeDamage(bleedDamage); // Apply bleeding damage to the player
+            elapsedTime += bleedInterval;
+            yield return new WaitForSeconds(bleedInterval); // Wait for the next damage tick
         }
     }
 }
