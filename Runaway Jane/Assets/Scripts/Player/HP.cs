@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HP : MonoBehaviour
@@ -89,6 +88,22 @@ public class HP : MonoBehaviour
         else
         {
             Debug.Log("Health is already full!");
+        }
+    }
+
+    public void StartBleeding(int damagePerTick, float duration, float interval)
+    {
+        StartCoroutine(BleedCoroutine(damagePerTick, duration, interval));
+    }
+
+    private IEnumerator BleedCoroutine(int damagePerTick, float duration, float interval)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            TakeDamage(damagePerTick);
+            yield return new WaitForSeconds(interval);
+            elapsedTime += interval;
         }
     }
 }
