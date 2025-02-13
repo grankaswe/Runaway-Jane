@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections; // Needed for Coroutines
+
 public class HidingSpot : MonoBehaviour
 {
     private bool playerInside = false; // Is the player in range to hide?
@@ -11,6 +12,7 @@ public class HidingSpot : MonoBehaviour
     public Sprite closedSprite; // Drag closed wardrobe sprite in the Inspector
 
     private SpriteRenderer spriteRenderer;
+    private bool IsHiding = false; // Track if player is inside
 
     [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, -10); // Camera offset
     [SerializeField] private KeyCode hideKey = KeyCode.E; // Key to hide/unhide
@@ -45,7 +47,11 @@ public class HidingSpot : MonoBehaviour
         isHiding = true;
         playerSprite.enabled = false; // Hide player sprite
         mainCamera.transform.position = new Vector3(transform.position.x, transform.position.y, mainCamera.transform.position.z); // Center camera
-        StartCoroutine(OpenAndCloseWardrobe());
+        if (!IsHiding) // Prevent re-entering
+        {
+            IsHiding = true;
+            StartCoroutine(OpenAndCloseWardrobe()); // Show open briefly, then close
+        }
     }
 
     private void ExitHiding()
@@ -53,6 +59,11 @@ public class HidingSpot : MonoBehaviour
         isHiding = false;
         playerSprite.enabled = true; // Show player sprite
         mainCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, mainCamera.transform.position.z); // Reset camera
+        if (IsHiding) // Prevent exiting if not inside
+        {
+            IsHiding = false;
+            StartCoroutine(OpenAndCloseWardrobe()); // Show open briefly, then close
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -100,10 +111,16 @@ public class HidingSpot : MonoBehaviour
             }
         }
     }
+
     private IEnumerator OpenAndCloseWardrobe()
     {
         spriteRenderer.sprite = openSprite; // Show open wardrobe
-        yield return new WaitForSeconds(0.2f); // Wait 0.2 seconds
+        yield return new WaitForSeconds(0.3f); // Wait before partially closing
+
+        // Optional: If you have an intermediate sprite (half-open), uncomment this:
+        // spriteRenderer.sprite = halfClosedSprite;
+        // yield return new WaitForSeconds(0.5f);
+
         spriteRenderer.sprite = closedSprite; // Switch back to closed
     }
 }
