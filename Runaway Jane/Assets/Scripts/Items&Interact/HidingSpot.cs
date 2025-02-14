@@ -2,72 +2,99 @@ using UnityEngine;
 
 public class HidingSpot : MonoBehaviour
 {
-    private bool playerInside = false;  // Is the player inside the hiding spot?
-    private bool isHiding = false;  // Is the player hiding?
+    private bool playerInside = false; // Is the player in range to hide?
     private GameObject player;
     private SpriteRenderer playerSprite;
     private Camera mainCamera;
 
-    [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, -10);  // Camera position offset when hiding
-    [SerializeField] private KeyCode hideKey = KeyCode.E;  // Key to hide/unhide
+    [SerializeField] private Vector3 cameraOffset = new Vector3(0, 0, -10); // Camera position offset
+    [SerializeField] private KeyCode hideKey = KeyCode.E; // Key to hide/unhide
+    [SerializeField] private Sprite closedWardrobeSprite; // The sprite for the closed wardrobe
+    [SerializeField] private Sprite openWardrobeSprite; // The sprite for the open wardrobe
 
-    public bool IsHiding => isHiding;  // Public property to check if the player is hiding
+    private SpriteRenderer wardrobeSpriteRenderer;
+
+    private bool isHiding = false; // Tracks if the player is hiding in the wardrobe
+    private int spriteToggleCounter = 0; // Counter to handle sprite cycling
+
+    public bool IsHiding { get; internal set; }
 
     private void Start()
     {
-        mainCamera = Camera.main;  // Get the main camera
+        mainCamera = Camera.main; // Get the main camera
+        wardrobeSpriteRenderer = GetComponent<SpriteRenderer>(); // Get the sprite renderer for wardrobe
     }
 
     private void Update()
     {
-        if (playerInside && Input.GetKeyDown(hideKey))  // If player is inside and presses the hide key
+        if (playerInside && Input.GetKeyDown(hideKey))
         {
-            if (!isHiding)
+            // Cycle the sprite between closed ? opened ? closed
+            spriteToggleCounter++;
+            spriteToggleCounter %= 3; // Ensure it cycles between 0, 1, 2
+
+            if (spriteToggleCounter == 0)
             {
-                EnterHiding();
+                // Closed wardrobe
+                wardrobeSpriteRenderer.sprite = closedWardrobeSprite;
+                if (isHiding)
+                {
+                    UnhidePlayer();
+                }
             }
-            else
+            else if (spriteToggleCounter == 1)
             {
-                ExitHiding();
+                // Open wardrobe
+                wardrobeSpriteRenderer.sprite = openWardrobeSprite;
+                if (!isHiding)
+                {
+                    HidePlayer();
+                }
             }
+            // No action needed for the 2nd cycle (closed), as it's handled by the 0 cycle
+
         }
     }
 
-    private void EnterHiding()
+    private void HidePlayer()
     {
-        if (player == null) return;
-
+        // Player enters hiding state
+        playerSprite.enabled = false; // Hide the player sprite
+        mainCamera.transform.position = transform.position + cameraOffset; // Center camera on hiding spot
         isHiding = true;
-        playerSprite.enabled = false;  // Hide player sprite
-        mainCamera.transform.position = transform.position + cameraOffset;  // Move camera to hiding spot
     }
 
-    private void ExitHiding()
+    private void UnhidePlayer()
     {
+        // Player exits hiding state
+        playerSprite.enabled = true; // Show the player sprite
+        mainCamera.transform.position = player.transform.position + cameraOffset; // Return camera to player
         isHiding = false;
-        playerSprite.enabled = true;  // Show player sprite
-        mainCamera.transform.position = player.transform.position + cameraOffset;  // Return camera to player
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))  // If the player collides with the hiding spot
+        if (collision.gameObject.CompareTag("Player"))
         {
             playerInside = true;
             player = collision.gameObject;
-            playerSprite = player.GetComponent<SpriteRenderer>();  // Get the player's SpriteRenderer
+            playerSprite = player.GetComponent<SpriteRenderer>();
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))  // If the player leaves the hiding spot
+        if (collision.gameObject.CompareTag("Player"))
         {
             playerInside = false;
 
             if (isHiding)
             {
-                ExitHiding();
+                // Ensure the player is visible when they exit the hiding spot
+                wardrobeSpriteRenderer.sprite = closedWardrobeSprite;
+                playerSprite.enabled = true;
+                mainCamera.transform.position = player.transform.position + cameraOffset;
+                isHiding = false;
             }
         }
     }

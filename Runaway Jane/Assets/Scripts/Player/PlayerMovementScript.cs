@@ -38,37 +38,36 @@ public class TopDownMovement : MonoBehaviour
     void FixedUpdate()
     {
         // Determine current movement speed based on player actions
-        // Determine current movement speed based on player health
         float currentMoveSpeed = moveSpeed;
+        bool isSprinting = false;
+        bool isHurt = playerHealth.GetCurrentHealth() < playerHealth.GetMaxHealth() * 0.5f;
+        bool isLimping = isHurt && movement.magnitude > 0;
 
         // Sprinting logic (hold LeftShift)
-        if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint())
-            // Check if the player's health is below 50% and adjust speed
-            if (playerHealth.GetCurrentHealth() < playerHealth.GetMaxHealth() * 0.5f)
-            {
-                currentMoveSpeed *= hurtSpeedMultiplier; // Reduce speed if health is below 50%
-                sprintSpeedMultiplier = 1f; // Disable sprinting when hurt (no speed multiplier for sprinting)
-            }
-            else
-            {
-                currentMoveSpeed *= sprintSpeedMultiplier; // Increase speed while sprinting
-                oxySystem.DrainOxygen(oxySystem.sprintDrainRate * Time.fixedDeltaTime); // Drain oxygen
-                                                                                        // Sprinting logic (hold LeftShift)
-                if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint())
-                {
-                    currentMoveSpeed *= sprintSpeedMultiplier; // Increase speed while sprinting
-                    oxySystem.DrainOxygen(oxySystem.sprintDrainRate * Time.fixedDeltaTime); // Drain oxygen
-                }
-            }
+        if (Input.GetKey(KeyCode.LeftShift) && oxySystem.CanSprint() && !isHurt)
+        {
+            currentMoveSpeed *= sprintSpeedMultiplier; // Increase speed while sprinting
+            oxySystem.DrainOxygen(oxySystem.sprintDrainRate * Time.fixedDeltaTime); // Drain oxygen
+            isSprinting = true;
+        }
         // Sneaking logic (hold LeftControl)
         else if (Input.GetKey(KeyCode.LeftControl) && oxySystem.CanSneak())
-            if (Input.GetKey(KeyCode.LeftControl) && oxySystem.CanSneak())
-            {
-                currentMoveSpeed *= sneakSpeedMultiplier; // Decrease speed while sneaking
-                oxySystem.DrainOxygen(oxySystem.sneakDrainRate * Time.fixedDeltaTime); // Drain oxygen
-            }
+        {
+            currentMoveSpeed *= sneakSpeedMultiplier; // Decrease speed while sneaking
+            oxySystem.DrainOxygen(oxySystem.sneakDrainRate * Time.fixedDeltaTime); // Drain oxygen
+        }
+        // If hurt, apply movement penalty
+        if (isHurt)
+        {
+            currentMoveSpeed *= hurtSpeedMultiplier; // Reduce speed if health is below 50%
+        }
 
         // Apply movement to the Rigidbody2D
         rb.velocity = movement.normalized * currentMoveSpeed;
+
+        // Update animator parameters
+        animator.SetBool("IsSprinting", isSprinting);
+        animator.SetBool("IsHurt", isHurt);
+        animator.SetBool("IsLimping", isLimping);
     }
 }

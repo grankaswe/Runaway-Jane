@@ -13728,14 +13728,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1615343863}
-  moveSpeed: 2
+  isChasing: 0
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 8
-  chaseTime: 3
   visionCollider: {fileID: 1842727969}
   soundCollider: {fileID: 1842225301}
-  movementAI: {fileID: 1074638132}
 --- !u!50 &1074638130
 Rigidbody2D:
   serializedVersion: 4
@@ -13810,7 +13808,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5312c3d2090cc745a6b896332aedc12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 1615343863}
 --- !u!195 &1074638133
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -15308,6 +15305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraOffset: {x: 0, y: 0, z: -10}
   hideKey: 101
+<<<<<<< Updated upstream
 --- !u!1 &1296056180
 GameObject:
   m_ObjectHideFlags: 0
@@ -15896,6 +15894,10 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+  closedWardrobeSprite: {fileID: 21300000, guid: de75546a590553942a0293a846c70f68, type: 3}
+  openWardrobeSprite: {fileID: 21300000, guid: 3cbff83a3095171448a2f50ab3275379, type: 3}
+>>>>>>> Stashed changes
 --- !u!1 &1338249678
 GameObject:
   m_ObjectHideFlags: 0
